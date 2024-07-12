@@ -32,7 +32,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define LINE_MAX_LENGTH 80
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -71,6 +71,32 @@ int __io_putchar(int ch) {
 	HAL_UART_Transmit(&huart2, (uint8_t*)&ch, 1, HAL_MAX_DELAY);
 	return 1;
 
+}
+
+static char line_buffer[LINE_MAX_LENGTH + 1];
+static uint32_t line_length;
+
+void line_append(uint8_t value) {
+
+	if(value == '\r' || value == '\n') {
+		//Odebralismy znak konca linii
+		if(line_length > 0) {
+			//Jesli bufor nie jest pusty to dodajemy 0 na koncu linii:
+			line_buffer[line_length] = '\0';
+			//Przetwarzamy dane:
+			printf("Otrzymano: %s\n", line_buffer);
+			//Zaczynamy zbieranie danych od nowa:
+			line_length = 0;
+		}
+	}
+	else {
+		if(line_length >= LINE_MAX_LENGTH) {
+			//za duzo danych, usuwamy wszystko co zostalo zebrane dotychczas:
+			line_length = 0;
+		}
+		//dopisujemy wartosc do bufora:
+		line_buffer[line_length++] = value;
+	}
 }
 
 /* USER CODE END 0 */
@@ -122,13 +148,9 @@ int main(void)
   {
 	  //Odbieranie 1 bajtu danych przez UART od komputera przez 2000ms:
 	  uint8_t value;
-	  if(HAL_UART_Receive(&huart2, &value, 1, 2000) == HAL_OK) {
-		  //Wysyłanie odebranych danych do komputera:
-		  printf("Odebrano: %c\n", value);
-	  } else {
-		  printf(".");
-		  //Opróżnienie bufora wyjsciowego używanego przez funkcje printf do wysylania danych:
-		  fflush(stdout);
+	  if(HAL_UART_Receive(&huart2, &value, 1, 0) == HAL_OK) {
+		  //Przetwarzanie otrzymanych danych i Wysyłanie odebranych danych do komputera:
+		  line_append(value);
 	  }
 
 
