@@ -120,6 +120,18 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  //Odbieranie 1 bajtu danych przez UART od komputera przez 2000ms:
+	  uint8_t value;
+	  if(HAL_UART_Receive(&huart2, &value, 1, 2000) == HAL_OK) {
+		  //Wysyłanie odebranych danych do komputera:
+		  printf("Odebrano: %c\n", value);
+	  } else {
+		  printf(".");
+		  //Opróżnienie bufora wyjsciowego używanego przez funkcje printf do wysylania danych:
+		  fflush(stdout);
+	  }
+
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -195,7 +207,8 @@ static void MX_USART2_UART_Init(void)
   huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
   huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_RXOVERRUNDISABLE_INIT;
+  huart2.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
   if (HAL_UART_Init(&huart2) != HAL_OK)
   {
     Error_Handler();
