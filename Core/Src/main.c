@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <string.h>
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,6 +58,21 @@ static void MX_USART2_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+//Nadpisanie funkcji wywoływanej przez printf do przesyłania znaku:
+int __io_putchar(int ch) {
+
+	//Dodanie powrotu do początku linii ("\r") przy znaku przejscia do nowej linii:
+	if (ch == '\n') {
+		uint8_t ch2 = '\r';
+		//Przeslanie znaku przez moduł USART2:
+		HAL_UART_Transmit(&huart2, &ch2, 1, HAL_MAX_DELAY);
+	}
+	//Przesłanie znaku przez moduł USART2:
+	HAL_UART_Transmit(&huart2, (uint8_t*)&ch, 1, HAL_MAX_DELAY);
+	return 1;
+
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -90,9 +106,14 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+  /*
   const char message[] = "Hello World!\r\n";
   //Wyslanie danych przez moduł USART2
   HAL_UART_Transmit(&huart2, (uint8_t*)message, strlen(message), HAL_MAX_DELAY);
+  */
+  printf("Hello world!\n");
+  float pi = 3.14f;
+  printf("Liczba pi to: %f\n", pi);
   /* USER CODE END 2 */
 
   /* Infinite loop */
